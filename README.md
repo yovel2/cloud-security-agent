@@ -2,5 +2,6 @@
 
 docker build -t cloud-security-agent .
 
+create OUTPUT dir
 
-docker run --rm --network host cloud-security-agent python src/main.py https://github.com/octocat/Spoon-Knife
+docker run --rm --network host -v "%cd%\output:/tmp" cloud-security-agent python src/main.py https://github.com/octocat/Spoon-Knife
