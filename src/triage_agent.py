@@ -12,6 +12,49 @@ class LLMTriageAgent:
     def __init__(self, model_name="gemini/gemini-1.5-pro"):
         self.model_name = model_name
 
+    def generate_patch(self, finding):
+        """
+        Takes a confirmed True Positive finding and tasks the LLM with writing
+        secure, functional remediation code without breaking existing logic.
+        """
+        system_prompt = """
+        You are a Senior Cloud DevSecOps Engineer.
+        Your task is to Remediate (fix) a confirmed security vulnerability.
+
+        RULES:
+        1. Provide the EXACT lines of code to replace the vulnerable lines.
+        2. Ensure the Principle of Least Privilege.
+        3. DO NOT break the application's core functionality (e.g., if it's a database connection, keep it working but secure it).
+
+        Respond ONLY with a JSON object matching this schema:
+        {
+            "patch_strategy": "Brief explanation of how the patch fixes the issue.",
+            "original_code": "The exact snippet of vulnerable code you are replacing.",
+            "fixed_code": "The secure code ready to be injected."
+        }
+        """
+
+        user_prompt = f"Vulnerability to Patch:\n{json.dumps(finding, indent=2)}"
+
+        try:
+            response = completion(
+                model=self.model_name,
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ]
+            )
+
+            raw_content = response.choices[0].message.content.strip()
+            if raw_content.startswith("```json"):
+                raw_content = raw_content.replace("```json", "").replace("```", "").strip()
+            elif raw_content.startswith("```"):
+                raw_content = raw_content.replace("```", "").strip()
+
+            return json.loads(raw_content)
+        except Exception as e:
+            return {"patch_strategy": "ERROR", "original_code": "", "fixed_code": str(e)}
+
     def analyze_finding(self, finding):
         """
         Submits a single parsed vulnerability finding to the configured LLM.

@@ -14,6 +14,7 @@ WORKDIR /app
 # העתקת קובץ הדרישות של הפייתון 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --upgrade litellm google-generativeai
 
 # העתקת קוד המקור של הסוכן לתוך הקונטיינר
 COPY src/ ./src/
