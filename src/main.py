@@ -3,8 +3,7 @@ import sys
 import subprocess
 import shutil
 from git import Repo
-from parser import SemgrepParser
-import json
+from evaluator import run_evaluation
 
 
 # Define volatile container paths for stateless execution
@@ -82,23 +81,9 @@ if __name__ == "__main__":
 
     target_github_url = sys.argv[1]
 
-    # Run Ingestion and Scanning Layer
     clean_up()
     clone_repository(target_github_url)
     run_semgrep_scan()
 
-    # Run Parsing Layer (New Integrated Step)
-    print("[*] Transitioning to parsing architecture...")
-    data_parser = SemgrepParser(OUTPUT_JSON)
-    structured_findings = data_parser.parse_findings()
-
-    # Print a brief summary of results inside the log
-    print(f"[+] Pipeline finished. Identified {len(structured_findings)} targets for LLM triage.")
-
-    print("\n" + "=" * 60)
-    print("[*] PREVIEW OF EXTRACTED FINDINGS (Showing first 3):")
-    print("=" * 60)
-
-    # שימוש ב-indent=4 מדפיס את ה-JSON בצורה קריאה ומדורגת
-    print(json.dumps(structured_findings, indent=4))
-    print("=" * 60)
+    # Run the benchmarking suite instead of the hardcoded Gemini run
+    run_evaluation()

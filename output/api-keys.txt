@@ -1,0 +1,1 @@
+docker run --rm --network host -e GEMINI_API_KEY="AQ.Ab8RN6KqoywNh_d1ndvDs44Iq8mmGv1lLdOLSR5mrAgp9fNZNw" -e GROQ_API_KEY="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" cloud-security-agent python src/main.py https://github.com/OWASP/NodeGoat
