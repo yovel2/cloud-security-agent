@@ -3,6 +3,9 @@ import sys
 import subprocess
 import shutil
 from git import Repo
+from parser import SemgrepParser
+import json
+
 
 # Define volatile container paths for stateless execution
 TARGET_DIR = "/tmp/target_repo"
@@ -49,7 +52,7 @@ def run_semgrep_scan():
 
     # Utilizing auto-configuration to fetch optimal rulesets for AppSec and IaC/Cloud misconfigurations.
     # The JSON format is required for structured object mapping by the LLM ingestion layers.
-    command = [
+    command = [ 
         "semgrep",
         "scan",
         "--config=auto",
@@ -73,14 +76,29 @@ def run_semgrep_scan():
 
 
 if __name__ == "__main__":
-    # Validate CLI arguments for the automation pipeline
     if len(sys.argv) < 2:
         print("[-] Execution Error. Usage: python main.py <GITHUB_REPOSITORY_URL>")
         sys.exit(1)
 
     target_github_url = sys.argv[1]
 
-    # Execute the structured automated ingestion and scanning pipeline
+    # Run Ingestion and Scanning Layer
     clean_up()
     clone_repository(target_github_url)
     run_semgrep_scan()
+
+    # Run Parsing Layer (New Integrated Step)
+    print("[*] Transitioning to parsing architecture...")
+    data_parser = SemgrepParser(OUTPUT_JSON)
+    structured_findings = data_parser.parse_findings()
+
+    # Print a brief summary of results inside the log
+    print(f"[+] Pipeline finished. Identified {len(structured_findings)} targets for LLM triage.")
+
+    print("\n" + "=" * 60)
+    print("[*] PREVIEW OF EXTRACTED FINDINGS (Showing first 3):")
+    print("=" * 60)
+
+    # שימוש ב-indent=4 מדפיס את ה-JSON בצורה קריאה ומדורגת
+    print(json.dumps(structured_findings, indent=4))
+    print("=" * 60)
