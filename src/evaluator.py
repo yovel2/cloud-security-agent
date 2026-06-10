@@ -1,6 +1,7 @@
 import json
 import csv
 import os
+import time
 from triage_agent import LLMTriageAgent
 from parser import SemgrepParser
 
@@ -104,7 +105,15 @@ def run_evaluation():
             correct_predictions = 0
             total_predictions = len(test_subset)
 
+            request_counter = 0
+
             for finding in test_subset:
+                request_counter += 1
+
+                if model_name == "groq/llama-3.1-8b-instant" and request_counter >= 6:
+                    print(f"[*] Rate Limit protection active. Waiting 10 seconds (Request #{request_counter})...")
+                    time.sleep(10)
+
                 expected = finding['expected_classification']
                 expected_patch = finding['expected_patch']
 
@@ -151,9 +160,6 @@ def run_evaluation():
 
     print(f"\n[+] Benchmarking complete! Patch analysis report successfully saved to: {report_path}")
 
-
-if __name__ == "__main__":
-    run_evaluation()
 
 if __name__ == "__main__":
     run_evaluation()

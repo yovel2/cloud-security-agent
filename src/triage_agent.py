@@ -1,5 +1,6 @@
 import os
 import json
+import time
 from litellm import completion
 
 
@@ -37,13 +38,26 @@ class LLMTriageAgent:
         user_prompt = f"Vulnerability to Patch:\n{json.dumps(finding, indent=2)}"
 
         try:
-            response = completion(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ]
-            )
+            max_retries = 3
+            response = None
+            
+            for attempt in range(max_retries):
+                try:
+                    response = completion(
+                        model=self.model_name,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        timeout=30  # מנתק את הבקשה אם השרת נתקע ליותר מ-30 שניות
+                    )
+                    break  # אם הצלחנו, יוצאים מלולאת הניסיונות
+                    
+                except Exception as api_error:
+                    if attempt == max_retries - 1:
+                        raise api_error  # אם זה הניסיון האחרון - זורקים את השגיאה החוצה
+                    print(f"      [!] API Error ({type(api_error).__name__}). Retrying ({attempt+1}/{max_retries}) in 5 seconds...")
+                    time.sleep(5)  # המתנה קלה לפני הניסיון הבא כדי שהשרת יתאושש
 
             raw_content = response.choices[0].message.content.strip()
             if raw_content.startswith("```json"):
@@ -85,14 +99,28 @@ class LLMTriageAgent:
         user_prompt = f"Semgrep Finding to Triage:\n{json.dumps(finding, indent=2)}"
 
         try:
-            # Execute the multi-provider abstraction layer via LiteLLM
-            response = completion(
-                model=self.model_name,
-                messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": user_prompt}
-                ]
-            )
+            max_retries = 3
+            response = None
+            
+            for attempt in range(max_retries):
+                try:
+                    # Execute the multi-provider abstraction layer via LiteLLM
+                    response = completion(
+                        model=self.model_name,
+                        messages=[
+                            {"role": "system", "content": system_prompt},
+                            {"role": "user", "content": user_prompt}
+                        ],
+                        timeout=30  # מנתק את הבקשה אם השרת נתקע ליותר מ-30 שניות
+                    )
+                    break  # אם הצלחנו, יוצאים מלולאת הניסיונות
+                    
+                except Exception as api_error:
+                    if attempt == max_retries - 1:
+                        raise api_error  # אם זה הניסיון האחרון - זורקים את השגיאה החוצה
+                    print(f"      [!] API Error ({type(api_error).__name__}). Retrying ({attempt+1}/{max_retries}) in 5 seconds...")
+                    time.sleep(5)  # המתנה קלה לפני הניסיון הבא כדי שהשרת יתאושש
+
 
             raw_content = response.choices[0].message.content.strip()
 

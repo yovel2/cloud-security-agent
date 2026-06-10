@@ -1,30 +1,24 @@
-import json
 import os
+import requests
 
+api_key = os.environ.get("GEMINI_API_KEY")
 
-def check_raw_json():
-    json_path = "/tmp/semgrep_results.json"
-
-    if not os.path.exists(json_path):
-        print(f"[-] Cannot find {json_path}. Did you run main.py first?")
-        return
-
-    with open(json_path, 'r', encoding='utf-8') as f:
-        raw_data = json.load(f)
-
-    results = raw_data.get("results", [])
-
-    if not results:
-        print("[-] JSON is empty (no results).")
-        return
-
-    print("\n" + "=" * 60)
-    print("[*] RAW SEMGREP JSON FOR THE FIRST FINDING:")
-    print("=" * 60)
-
-    print(json.dumps(results[0], indent=4))
-    print("=" * 60)
-
-
-if __name__ == "__main__":
-    check_raw_json()
+if not api_key:
+    print("[-] GEMINI_API_KEY is not set!")
+else:
+    url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+    try:
+        response = requests.get(url)
+        if response.status_code == 200:
+            print("[+] Available Gemini models for your API key:")
+            models_data = response.json()
+            for model in models_data.get("models", []):
+                name = model.get("name")
+                # נדפיס רק את המודלים של ג'מיני כדי לא להציף את המסך
+                if "gemini" in name:
+                    short_name = name.replace("models/", "")
+                    print(f"  - gemini/{short_name}")
+        else:
+            print(f"[-] Failed to fetch models. Status code: {response.status_code}")
+    except Exception as e:
+        print(f"[-] Error: {e}")
