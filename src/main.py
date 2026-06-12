@@ -4,6 +4,7 @@ import subprocess
 import shutil
 from git import Repo
 from evaluator import run_evaluation
+from visualizer import generate_triage_graphs
 
 
 # Define volatile container paths for stateless execution
@@ -81,9 +82,10 @@ if __name__ == "__main__":
 
     target_github_url = sys.argv[1]
 
-    clean_up()
-    clone_repository(target_github_url)
-    run_semgrep_scan()
+    # clean_up()
+    # clone_repository(target_github_url)
+    # run_semgrep_scan()
 
     # Run the benchmarking suite instead of the hardcoded Gemini run
     run_evaluation()
+    generate_triage_graphs()
