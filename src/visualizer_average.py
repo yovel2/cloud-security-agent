@@ -16,7 +16,8 @@ def generate_average_graph():
         "llama-3.3-70b-versatile": 85.00,  # <-- Enter average here
         "llama-3.1-8b-instant": 75.00,     # <-- Enter average here
         "gemini-3.1-flash-lite": 85.00,    # <-- Enter average here
-        "llama-4-scout-17b": 80.00        # <-- Enter average here
+        "gpt-4o": 90.00,                   # <-- Enter average here
+        "ollama-llama3": 70.00             # <-- Enter average here
     }
     
     # =========================================================================

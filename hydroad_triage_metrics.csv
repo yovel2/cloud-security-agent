@@ -1,5 +1,7 @@
 Model,Total Tested,Accuracy (%),True Positives Found,False Positives Filtered,Missed Vulns (FN),False Alarms (FP)
-groq/llama-3.3-70b-versatile,20,90.00,7,11,2,0
-groq/llama-3.1-8b-instant,20,85.00,6,11,3,0
-gemini/gemini-3.1-flash-lite,20,100.00,9,11,0,0
-groq/meta-llama/llama-4-scout-17b-16e-instruct,20,100.00,9,11,0,0
+gemini/gemini-3.1-flash-lite,25,96.00,13,11,0,1
+groq/llama-3.1-8b-instant,25,92.00,12,11,1,1
+groq/llama-3.3-70b-versatile,25,92.00,12,11,1,1
+ollama/llama3,25,84.00,10,11,3,1
+ollama/phi3,25,0.00,0,0,13,12
+ollama/qwen:0.5b,25,0.00,0,0,13,12

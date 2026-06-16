@@ -22,7 +22,7 @@ class SemgrepParser:
             return f"Context unavailable (file not found on disk: {file_path})."
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
                 lines = f.readlines()
 
             # Convert 1-based line number to 0-based list index
@@ -50,7 +50,7 @@ class SemgrepParser:
             return []
 
         try:
-            with open(self.json_path, 'r', encoding='utf-8') as f:
+            with open(self.json_path, 'r', encoding='utf-8', errors='ignore') as f:
                 raw_data = json.load(f)
         except json.JSONDecodeError as e:
             print(f"[-] Formatting Error: Failed to parse structural JSON semantics: {e}")

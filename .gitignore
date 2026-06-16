@@ -5,3 +5,7 @@ __pycache__/
 .DS_Store
 output/
 hydroad_patch_report.txt
+.env
+tmp_target_repo/
+semgrep_results.json
+final_security_report.json

@@ -2,6 +2,11 @@ import os
 import json
 import time
 from litellm import completion
+from dotenv import load_dotenv
+
+# תמיד טוען ודורס משתני סביבה מהקובץ
+env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env')
+load_dotenv(dotenv_path=env_path, override=True)
 
 
 class LLMTriageAgent:
@@ -49,15 +54,17 @@ class LLMTriageAgent:
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
                         ],
-                        timeout=30  # מנתק את הבקשה אם השרת נתקע ליותר מ-30 שניות
+                        timeout=30
                     )
-                    break  # אם הצלחנו, יוצאים מלולאת הניסיונות
+                    break
                     
                 except Exception as api_error:
+                    if "api key" in str(api_error).lower() or "auth" in str(api_error).lower() or "badrequest" in str(api_error).lower():
+                        return {"patch_strategy": "ERROR", "original_code": "", "fixed_code": "Missing API Key or Authentication Error."}
                     if attempt == max_retries - 1:
-                        raise api_error  # אם זה הניסיון האחרון - זורקים את השגיאה החוצה
+                        return {"patch_strategy": "ERROR", "original_code": "", "fixed_code": str(api_error)}
                     print(f"      [!] API Error ({type(api_error).__name__}). Retrying ({attempt+1}/{max_retries}) in 5 seconds...")
-                    time.sleep(5)  # המתנה קלה לפני הניסיון הבא כדי שהשרת יתאושש
+                    time.sleep(5)
 
             raw_content = response.choices[0].message.content.strip()
             if raw_content.startswith("```json"):
@@ -111,24 +118,43 @@ class LLMTriageAgent:
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
                         ],
-                        timeout=30  # מנתק את הבקשה אם השרת נתקע ליותר מ-30 שניות
+                        timeout=30
                     )
-                    break  # אם הצלחנו, יוצאים מלולאת הניסיונות
+                    break
                     
                 except Exception as api_error:
+                    if "api key" in str(api_error).lower() or "auth" in str(api_error).lower() or "badrequest" in str(api_error).lower():
+                        return {
+                            "classification": "ERROR",
+                            "justification": f"Missing API Key for {self.model_name}.",
+                            "remedial_patch": ""
+                        }
                     if attempt == max_retries - 1:
-                        raise api_error  # אם זה הניסיון האחרון - זורקים את השגיאה החוצה
-                    print(f"      [!] API Error ({type(api_error).__name__}). Retrying ({attempt+1}/{max_retries}) in 5 seconds...")
-                    time.sleep(5)  # המתנה קלה לפני הניסיון הבא כדי שהשרת יתאושש
+                        return {
+                            "classification": "ERROR",
+                            "justification": f"LiteLLM API failed: {str(api_error)}",
+                            "remedial_patch": ""
+                        }
+                    print(f"      [!] API Error ({type(api_error).__name__}). Retrying ({attempt+1}/{max_retries}) in 20 seconds...")
+                    time.sleep(20)
 
 
             raw_content = response.choices[0].message.content.strip()
 
             # Clean potential LLM markdown leaks safely
-            if raw_content.startswith("```json"):
-                raw_content = raw_content.replace("```json", "").replace("```", "").strip()
-            elif raw_content.startswith("```"):
-                raw_content = raw_content.replace("```", "").strip()
+            if "```json" in raw_content:
+                raw_content = raw_content.split("```json")[1].split("```")[0].strip()
+            elif "```" in raw_content:
+                raw_content = raw_content.split("```")[1].strip()
+            
+            # If the model added extra text outside the JSON braces, try to extract just the JSON
+            if raw_content.startswith("{") and raw_content.endswith("}"):
+                pass
+            else:
+                start_idx = raw_content.find("{")
+                end_idx = raw_content.rfind("}")
+                if start_idx != -1 and end_idx != -1:
+                    raw_content = raw_content[start_idx:end_idx+1]
 
             return json.loads(raw_content)
 
