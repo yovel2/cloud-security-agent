@@ -9,3 +9,4 @@ hydroad_patch_report.txt
 tmp_target_repo/
 semgrep_results.json
 final_security_report.json
+src/models.json
