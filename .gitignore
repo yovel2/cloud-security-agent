@@ -5,3 +5,6 @@ __pycache__/
 .DS_Store
 output/
 hydroad_patch_report.txt
+
+# Secrets and Environment Variables
+.env
