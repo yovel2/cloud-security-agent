@@ -15,27 +15,36 @@ class LLMTriageAgent:
 
     def generate_patch(self, finding):
         """
-        Takes a confirmed True Positive finding and tasks the LLM with writing
-        secure, functional remediation code without breaking existing logic.
+        Generates a remediation patch based on the explicitly provided Security Team Analysis.
         """
-        system_prompt = """
-        You are a Senior Cloud DevSecOps Engineer.
-        Your task is to Remediate (fix) a confirmed security vulnerability.
+        system_prompt = """You are an Expert Cloud Security Remediation Engineer.
+        Your task is to provide a secure code fix for a CONFIRMED vulnerability. 
+        You will be provided with the vulnerable code and the exact security reasoning from the triage team.
 
         RULES:
         1. Provide the EXACT lines of code to replace the vulnerable lines.
         2. Ensure the Principle of Least Privilege.
-        3. DO NOT break the application's core functionality (e.g., if it's a database connection, keep it working but secure it).
+        3. DO NOT break the application's core functionality.
 
-        Respond ONLY with a JSON object matching this schema:
+        You MUST respond in valid JSON format exactly like this:
         {
-            "patch_strategy": "Brief explanation of how the patch fixes the issue.",
-            "original_code": "The exact snippet of vulnerable code you are replacing.",
-            "fixed_code": "The secure code ready to be injected."
-        }
-        """
+            "patch_strategy": "Brief explanation of how your code implements the security team's recommendation.",
+            "fixed_code": "The actual corrected code snippet."
+        }"""
 
-        user_prompt = f"Vulnerability to Patch:\n{json.dumps(finding, indent=2)}"
+        user_prompt = f"""
+        Vulnerability (Rule ID): {finding.get('rule_id')}
+        File Location: {finding.get('target_file')}:{finding.get('line_start')}
+
+        --- AFFECTED CODE ---
+        {finding.get('affected_code', 'No code provided')}
+
+        --- SECURITY TEAM ANALYSIS (YOUR INSTRUCTIONS) ---
+        {finding.get('reasoning', 'No reasoning provided')}
+        --------------------------------------------------
+
+        Based on the explicit analysis and instructions above, provide the JSON response with the patch strategy and fixed code.
+        """
 
         try:
             max_retries = 3
@@ -49,6 +58,7 @@ class LLMTriageAgent:
                             {"role": "system", "content": system_prompt},
                             {"role": "user", "content": user_prompt}
                         ],
+                        response_format={"type": "json_object"},
                         timeout=30  # מנתק את הבקשה אם השרת נתקע ליותר מ-30 שניות
                     )
                     break  # אם הצלחנו, יוצאים מלולאת הניסיונות
@@ -60,14 +70,15 @@ class LLMTriageAgent:
                     time.sleep(5)  # המתנה קלה לפני הניסיון הבא כדי שהשרת יתאושש
 
             raw_content = response.choices[0].message.content.strip()
-            if raw_content.startswith("```json"):
-                raw_content = raw_content.replace("```json", "").replace("```", "").strip()
-            elif raw_content.startswith("```"):
-                raw_content = raw_content.replace("```", "").strip()
+            
+            # ניקוי שאריות Markdown שמודלים לפעמים מוסיפים בטעות
+            raw_content = raw_content.replace("```json", "").replace("```", "").strip()
 
             return json.loads(raw_content)
+            
         except Exception as e:
-            return {"patch_strategy": "ERROR", "original_code": "", "fixed_code": str(e)}
+            return {"patch_strategy": "ERROR", "fixed_code": str(e)}
+
 
     def analyze_finding(self, finding):
         """

@@ -88,4 +88,4 @@ if __name__ == "__main__":
 
     # Run the benchmarking suite instead of the hardcoded Gemini run
     run_evaluation()
-    generate_triage_graphs()
+    # generate_triage_graphs()
