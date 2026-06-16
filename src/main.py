@@ -60,7 +60,7 @@ def run_semgrep_scan():
 
 def generate_final_report(confirmed_vulnerabilities, target_repo):
     """
-    Agent 3 (cohere): Generates the final Executive Security Report.
+    Agent 3 (Cohere): Generates the final Executive Security Report.
     """
     print(f"\n[*] Activating Agent 3 ({REPORT_MODEL}) for Final Report Generation...")
 
