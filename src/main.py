@@ -13,9 +13,9 @@ TARGET_DIR = "/tmp/target_repo"
 OUTPUT_JSON = "/tmp/semgrep_results.json"
 
 # --- MULTI-AGENT PIPELINE CONFIGURATION ---
-TRIAGE_MODEL = "gemini/gemini-3.1-flash-lite"  # Agent 1: Fast filtering (Google)
-PATCH_MODEL = "groq/llama-3.3-70b-versatile"  # Agent 2: Deep code remediation (Meta)
-REPORT_MODEL = "anthropic/claude-3-5-sonnet-latest"  # Agent 3: Executive Reporting (Anthropic)
+TRIAGE_MODEL = "gemini/gemini-1.5-flash"           # Agent 1: Fast filtering (Google)
+PATCH_MODEL = "groq/llama-3.3-70b-versatile"       # Agent 2: Deep code remediation (Meta)
+REPORT_MODEL = "cohere/command-r-plus"             # Agent 3: Executive Reporting (Cohere)
 
 
 def clean_up():
@@ -60,7 +60,7 @@ def run_semgrep_scan():
 
 def generate_final_report(confirmed_vulnerabilities, target_repo):
     """
-    Agent 3 (cohere): Generates the final Executive Security Report.
+    Agent 3 (Cohere): Generates the final Executive Security Report.
     """
     print(f"\n[*] Activating Agent 3 ({REPORT_MODEL}) for Final Report Generation...")
 
