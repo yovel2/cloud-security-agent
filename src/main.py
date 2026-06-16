@@ -15,7 +15,7 @@ OUTPUT_JSON = "/tmp/semgrep_results.json"
 # --- MULTI-AGENT PIPELINE CONFIGURATION ---
 TRIAGE_MODEL = "gemini/gemini-3.1-flash-lite"  # Agent 1: Fast filtering (Google)
 PATCH_MODEL = "groq/llama-3.3-70b-versatile"  # Agent 2: Deep code remediation (Meta)
-REPORT_MODEL = "cohere/command-r-plus"  # Agent 3: Executive Reporting (Cohere)
+REPORT_MODEL = "cohere/command-r-plus-08-2024"  # Agent 3: Executive Reporting (Cohere)
 
 
 def clean_up():
@@ -93,7 +93,7 @@ def generate_final_report(confirmed_vulnerabilities, target_repo):
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            timeout=60
+            timeout=600
         )
         return response.choices[0].message.content.strip()
     except Exception as e:

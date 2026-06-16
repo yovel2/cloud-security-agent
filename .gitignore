@@ -6,5 +6,7 @@ __pycache__/
 output/
 hydroad_patch_report.txt
 
+HYDROAD_FINAL_REPORT.md
+
 # Secrets and Environment Variables
 .env
