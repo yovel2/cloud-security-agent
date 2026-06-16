@@ -15,7 +15,7 @@ OUTPUT_JSON = "/tmp/semgrep_results.json"
 # --- MULTI-AGENT PIPELINE CONFIGURATION ---
 TRIAGE_MODEL = "gemini/gemini-3.1-flash-lite"  # Agent 1: Fast filtering (Google)
 PATCH_MODEL = "groq/llama-3.3-70b-versatile"  # Agent 2: Deep code remediation (Meta)
-REPORT_MODEL = "anthropic/claude-3-5-sonnet-latest"  # Agent 3: Executive Reporting (Anthropic)
+REPORT_MODEL = "cohere/command-r-plus"  # Agent 3: Executive Reporting (Cohere)
 
 
 def clean_up():
