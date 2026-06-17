@@ -112,7 +112,7 @@ def run_multi_agent_pipeline(repo_url):
     Orchestrates the Smart-Routing Multi-Agent AI Pipeline.
     """
     print("\n" + "=" * 60)
-    print("   🚀 INITIATING HYDROAD UNIFIED SECURITY PIPELINE (APPSEC + IAC)")
+    print("   🚀 INITIATING UNIFIED SECURITY PIPELINE (APPSEC + IAC)")
     print("=" * 60)
 
     # Step 1: Parse Semgrep Results
@@ -178,7 +178,7 @@ def run_multi_agent_pipeline(repo_url):
         final_report_md = generate_final_report(confirmed_findings, repo_url)
 
         # Save to file
-        report_path = "HYDROAD_UNIFIED_REPORT.md"
+        report_path = "UNIFIED_REPORT.md"
         with open(report_path, "w", encoding="utf-8") as f:
             f.write(final_report_md)
 
