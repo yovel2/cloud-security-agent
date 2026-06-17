@@ -109,7 +109,7 @@ def process_results():
             if patch_strategy:
                 print(f"      [+] Patch Strategy: {patch_strategy}")
         elif classification == "FP":
-            print("      [✓] FALSE POSITIVE. Discarding alert.")
+            print("      [v] FALSE POSITIVE. Discarding alert.")
         else:
             print(f"      [?] UNKNOWN CLASSIFICATION. Error: {justification}")
             

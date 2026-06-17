@@ -65,6 +65,9 @@ class SemgrepParser:
             # --- THE FIX: Fetch real code from disk instead of trusting Semgrep ---
             actual_code_block = self._get_code_context(target_file, line_start)
 
+            # Extract AppSec-specific metadata fields from Semgrep's metadata block
+            semgrep_metadata = result.get("extra", {}).get("metadata", {})
+
             finding_metadata = {
                 "rule_id": result.get("check_id"),
                 "target_file": target_file,
@@ -72,6 +75,16 @@ class SemgrepParser:
                 "line_end": result.get("end", {}).get("line"),
                 "analyzer_message": result.get("extra", {}).get("message"),
                 "severity_level": result.get("extra", {}).get("severity"),
+                "cwe": semgrep_metadata.get("cwe", []),
+                "owasp": semgrep_metadata.get("owasp", []),
+                "vulnerability_class": semgrep_metadata.get("vulnerability_class", []),
+                "category": semgrep_metadata.get("category", "UNKNOWN"),
+                "technology": semgrep_metadata.get("technology", []),
+                "impact": semgrep_metadata.get("impact", "UNKNOWN"),
+                "confidence": semgrep_metadata.get("confidence", "UNKNOWN"),
+                "dataflow_trace": result.get("extra", {}).get("dataflow_trace"),
+                "metavars": result.get("extra", {}).get("metavars"),
+                "semgrep_fix": result.get("extra", {}).get("fix"),
                 "affected_code": actual_code_block  # Assigned the real code block here!
             }
             extracted_findings.append(finding_metadata)
